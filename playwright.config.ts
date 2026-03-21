@@ -25,11 +25,11 @@ export default defineConfig({
 
   webServer: [
     {
-      command:              'npm run dev',
+      command:              'npm run dev:e2e',
       cwd:                  './server',
       port:                 5000,
       reuseExistingServer:  !process.env.CI,
-      timeout:              30_000,
+      timeout:              60_000,
     },
     {
       command:              'npm run dev',

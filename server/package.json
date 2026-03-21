@@ -5,6 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "dev":           "nodemon src/index.js",
+    "dev:e2e":       "node src/e2e-server.js",
     "start":         "node src/index.js",
     "test":          "vitest run",
     "test:unit":        "vitest run tests/unit",

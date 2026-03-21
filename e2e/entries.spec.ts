@@ -107,6 +107,6 @@ test.describe('Delete entry', () => {
     await page.waitForURL('/');
 
     // The Delete Entry button is not present anywhere on the home feed
-    await expect(page.locator('button:has-text("Delete Entry")')).not.toBeVisible();
+    await expect(page.locator('[data-testid="delete-entry-btn"]')).not.toBeAttached();
   });
 });

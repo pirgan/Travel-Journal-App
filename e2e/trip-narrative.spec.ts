@@ -61,9 +61,9 @@ test('user selects 2 entries on the narrative page and the story streams in', as
     route.fulfill({ status: 200, headers: SSE_HEADERS, body: COMPILE_SSE }),
   );
 
-  // Click the first entry card wrapper (the div with the selection border)
-  await page.click(`[href="/entry/${entry1._id}"]`);
-  await page.click(`[href="/entry/${entry2._id}"]`);
+  // Click the selectable wrapper divs (not the inner <a> link)
+  await page.click(`[data-testid="entry-select-${entry1._id}"]`);
+  await page.click(`[data-testid="entry-select-${entry2._id}"]`);
 
   // The compile button now reflects 2 selected entries
   await expect(page.locator('button:has-text("Compile 2 entries")')).toBeVisible();
@@ -88,11 +88,11 @@ test('Compile button is disabled with 0 entries selected and enables after selec
   await expect(compileBtn).toBeDisabled();
 
   // Select one entry — the button should become enabled
-  await page.click(`[href="/entry/${entry1._id}"]`);
+  await page.click(`[data-testid="entry-select-${entry1._id}"]`);
   await expect(page.locator('button:has-text("Compile 1 entries")')).toBeEnabled();
 
   // Select a second — still enabled and count updated
-  const cards = await page.locator('[href^="/entry/"]').all();
+  const cards = await page.locator('[data-testid^="entry-select-"]').all();
   if (cards.length > 1) {
     await cards[1].click();
     await expect(page.locator('button:has-text("Compile 2 entries")')).toBeEnabled();
@@ -111,8 +111,8 @@ test('narrative text streams progressively into the Your Story panel', async ({
     route.fulfill({ status: 200, headers: SSE_HEADERS, body: COMPILE_SSE }),
   );
 
-  await page.click(`[href="/entry/${entry1._id}"]`);
-  await page.click(`[href="/entry/${entry2._id}"]`);
+  await page.click(`[data-testid="entry-select-${entry1._id}"]`);
+  await page.click(`[data-testid="entry-select-${entry2._id}"]`);
   await page.click('button:has-text("Compile 2 entries")');
 
   // The "Your Story" heading appears once the narrative state is non-empty
@@ -136,8 +136,8 @@ test('Download .txt button appears after stream completes and triggers a downloa
     route.fulfill({ status: 200, headers: SSE_HEADERS, body: COMPILE_SSE }),
   );
 
-  await page.click(`[href="/entry/${entry1._id}"]`);
-  await page.click(`[href="/entry/${entry2._id}"]`);
+  await page.click(`[data-testid="entry-select-${entry1._id}"]`);
+  await page.click(`[data-testid="entry-select-${entry2._id}"]`);
   await page.click('button:has-text("Compile 2 entries")');
 
   // The Download button is conditionally rendered only after `done` is true

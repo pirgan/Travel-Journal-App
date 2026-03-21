@@ -73,6 +73,7 @@ export default function EntryDetail() {
 
       {isAuthor && (
         <button
+          data-testid="delete-entry-btn"
           onClick={handleDelete}
           className="mt-8 bg-red-500 text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-red-600 transition"
         >

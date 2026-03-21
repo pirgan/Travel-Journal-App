@@ -47,7 +47,7 @@ test('keyword search filters entries shown in results', async ({ page, request }
   await page.goto(`/search?q=Firenze`);
 
   // Wait for the result count to settle
-  await expect(page.locator('text=/result/')).toBeVisible();
+  await expect(page.locator('[data-testid="result-count"]')).toBeVisible();
 
   // Only the Florence entry should be visible; the Bali entry should not
   await expect(page.locator(`text=Firenze Sunset ${suffixA}`)).toBeVisible();

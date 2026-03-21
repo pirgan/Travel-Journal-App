@@ -49,7 +49,7 @@ export default function SearchResults() {
       </form>
 
       {params.get('q') && (
-        <p className="text-gray-500 mb-4 text-sm">
+        <p data-testid="result-count" className="text-gray-500 mb-4 text-sm">
           {loading ? 'Searching…' : `${results.length} result${results.length !== 1 ? 's' : ''} for "${params.get('q')}"`}
         </p>
       )}

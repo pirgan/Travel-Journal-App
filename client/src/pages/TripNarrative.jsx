@@ -54,7 +54,8 @@ export default function TripNarrative() {
         {entries.map((entry) => (
           <div
             key={entry._id}
-            onClickCapture={(e) => { e.stopPropagation(); toggle(entry._id); }}
+            data-testid={`entry-select-${entry._id}`}
+            onClickCapture={(e) => { e.stopPropagation(); e.preventDefault(); toggle(entry._id); }}
             className={`cursor-pointer rounded-2xl border-2 transition ${selected.includes(entry._id) ? 'border-terracotta' : 'border-transparent'}`}
           >
             <EntryCard entry={entry} />

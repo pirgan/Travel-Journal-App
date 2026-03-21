@@ -42,10 +42,9 @@ test('AI panel appears with streaming text after clicking Enhance', async ({ pag
   await expect(enhanceBtn).toBeVisible();
   await enhanceBtn.click();
 
-  // While streaming the button label changes to "Enhancing…"
-  await expect(page.locator('button:has-text("Enhancing…")')).toBeVisible();
-
   // The mocked chunks should appear inside the AI Enhance panel
+  // (mock responds instantly, so we assert on the stable streamed text
+  //  rather than the transient "Enhancing…" button label)
   await expect(page.locator('.whitespace-pre-wrap').last()).toContainText(
     'The golden light',
   );
