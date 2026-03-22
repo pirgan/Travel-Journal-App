@@ -3,35 +3,49 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import api from '../api/axios';
 
+// Maximum total images allowed per entry (enforced here and on the server)
+const MAX_IMAGES = 20;
+
 export default function EditEntry() {
+  // Extract the entry id from the URL, e.g. /entry/abc123/edit → id = 'abc123'
   const { id }    = useParams();
   const navigate  = useNavigate();
+
+  // Controlled form state for the text fields
   const [form, setForm]       = useState({ title: '', location: '', date: '', body: '' });
+  // Images already saved to Cloudinary (loaded from the API)
   const [existingImages, setExistingImages] = useState([]);
+  // New local files the user has picked but not yet uploaded
   const [newFiles, setNewFiles]   = useState([]);
   const [loading, setLoading]     = useState(true);
   const [saving, setSaving]       = useState(false);
 
+  // On mount: fetch all entries and find the one matching this id.
+  // Prefill the form with its current values so the user edits existing data.
   useEffect(() => {
     api.get('/entries').then(({ data }) => {
       const entry = data.find((e) => e._id === id);
-      if (!entry) { navigate('/'); return; }
+      if (!entry) { navigate('/'); return; }  // entry not found — redirect home
       setForm({
         title:    entry.title,
         location: entry.location,
-        date:     entry.date?.slice(0, 10) ?? '',
+        date:     entry.date?.slice(0, 10) ?? '',  // trim ISO timestamp to YYYY-MM-DD for the date input
         body:     entry.body,
       });
       setExistingImages(entry.images ?? []);
     }).finally(() => setLoading(false));
   }, [id, navigate]);
 
+  // Build a multipart/form-data payload and PUT it to the API.
+  // The server's multer middleware streams newFiles straight to Cloudinary before the controller runs.
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
     try {
       const fd = new FormData();
+      // Append each text field as a form key-value pair
       Object.entries(form).forEach(([k, v]) => fd.append(k, v));
+      // Append each new image file under the 'images' field name (matches multer's upload.array('images'))
       newFiles.forEach((f) => fd.append('images', f));
       await api.put(`/entries/${id}`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
       toast.success('Entry updated!');
@@ -49,16 +63,6 @@ export default function EditEntry() {
 
   return (
     <div className="min-h-screen bg-cream flex flex-col">
-      {/* Top bar */}
-      <div className="bg-white border-b border-border-warm px-6 sm:px-12 h-[72px] flex items-center justify-between shrink-0">
-        <Link to={`/entry/${id}`} className="flex items-center gap-2.5">
-          <div className="w-9 h-9 bg-terracotta rounded-[10px] flex items-center justify-center text-white font-bold text-sm">W</div>
-          <span className="font-display text-[22px] font-bold text-ink-dark hidden sm:block">Wanderlog</span>
-        </Link>
-        <span className="text-sm font-medium text-ink-secondary">Edit Entry</span>
-        <Link to={`/entry/${id}`} className="text-sm text-ink-muted hover:text-ink-secondary transition">Cancel</Link>
-      </div>
-
       <div className="flex-1 flex justify-center px-6 py-10 sm:px-12">
         <form onSubmit={handleSubmit} className="w-full max-w-2xl space-y-6">
           <div>
@@ -115,7 +119,7 @@ export default function EditEntry() {
             />
           </div>
 
-          {/* Existing photos */}
+          {/* Read-only grid of images already stored in Cloudinary for this entry */}
           {existingImages.length > 0 && (
             <div>
               <label className="block text-xs font-semibold text-ink-secondary mb-2">Current Photos</label>
@@ -129,19 +133,24 @@ export default function EditEntry() {
             </div>
           )}
 
-          {/* Add more photos */}
-          {existingImages.length + newFiles.length < 10 && (
+          {/* Show the add-more picker only while the combined total is below MAX_IMAGES.
+              Newly picked files are previewed via an object URL (browser-local, not yet uploaded). */}
+          {existingImages.length + newFiles.length < MAX_IMAGES && (
             <div>
-              <label className="block text-xs font-semibold text-ink-secondary mb-2">Add More Photos</label>
+              <label className="block text-xs font-semibold text-ink-secondary mb-2">
+                Add More Photos ({existingImages.length + newFiles.length}/{MAX_IMAGES})
+              </label>
               <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                 {newFiles.map((f, i) => (
                   <div key={i} className="aspect-square rounded-xl overflow-hidden bg-border-warm">
+                    {/* createObjectURL generates a temporary local URL for preview before upload */}
                     <img src={URL.createObjectURL(f)} alt="" className="w-full h-full object-cover" />
                   </div>
                 ))}
                 <label className="aspect-square rounded-xl border-2 border-dashed border-border-mid flex flex-col items-center justify-center cursor-pointer hover:border-terracotta hover:bg-terracotta-soft/50 transition gap-1">
                   <span className="text-3xl text-ink-muted">+</span>
                   <span className="text-xs text-ink-muted">Add photos</span>
+                  {/* Hidden file input — the visible label above acts as the click target */}
                   <input
                     type="file"
                     accept="image/*"
@@ -155,6 +164,7 @@ export default function EditEntry() {
           )}
 
           <div className="flex justify-end gap-3 pt-2">
+            {/* Cancel navigates back to the view page without saving */}
             <Link
               to={`/entry/${id}`}
               className="px-5 py-2.5 border border-border-mid rounded-xl text-sm text-ink-secondary hover:bg-white transition"

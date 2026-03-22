@@ -16,13 +16,11 @@ import TripNarrative from './pages/TripNarrative';
 import SearchResults from './pages/SearchResults';
 import Profile       from './pages/Profile';
 
-const NO_NAV_EXACT  = ['/login', '/register', '/entry/new'];
-const NO_NAV_PREFIX = ['/entry/', '/edit'];
+const NO_NAV_EXACT = ['/login', '/register', '/entry/new'];
 
 function ConditionalNavbar() {
   const { pathname } = useLocation();
   if (NO_NAV_EXACT.includes(pathname)) return null;
-  if (NO_NAV_PREFIX.some((p) => pathname.endsWith('/edit'))) return null;
   return <Navbar />;
 }
 

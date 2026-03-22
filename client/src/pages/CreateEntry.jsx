@@ -4,27 +4,42 @@ import { toast } from 'react-toastify';
 import api from '../api/axios';
 import BrandLogo from '../components/BrandLogo';
 
+// Maximum images a user can attach to a single entry
+const MAX_IMAGES = 20;
+
+// Step definitions for the multi-step form wizard.
+// Each step maps to a section of the entry: metadata → body → photos.
 const STEPS = [
   { label: 'Basic Info',  sub: 'Title, location & date',  title: 'Basic Information', blurb: "Let's start with the essentials of your journey." },
   { label: 'Your Story', sub: 'Write your journal entry', title: 'Your Story',       blurb: 'Capture the moments, feelings, and details you want to remember.' },
-  { label: 'Add Photos', sub: 'Upload up to 10 images',   title: 'Add Photos',       blurb: 'Add up to ten images to bring this memory to life.' },
+  { label: 'Add Photos', sub: `Upload up to ${MAX_IMAGES} images`, title: 'Add Photos', blurb: `Add up to ${MAX_IMAGES} images to bring this memory to life.` },
 ];
 
 export default function CreateEntry() {
   const navigate = useNavigate();
+  // Current wizard step index (0 = Basic Info, 1 = Your Story, 2 = Add Photos)
   const [step, setStep]   = useState(0);
+  // Controlled state for all text fields
   const [form, setForm]   = useState({ title: '', location: '', date: '', body: '' });
+  // Local File objects selected by the user — uploaded to Cloudinary on submit
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  // Advance to the next step, clamped to the last step
   const next = () => setStep((s) => Math.min(s + 1, 2));
+  // Go back one step, clamped to the first step
   const back = () => setStep((s) => Math.max(s - 1, 0));
 
+  // Assemble a multipart/form-data request and POST it to the entries API.
+  // The server's multer middleware intercepts the 'images' fields and streams
+  // each file to Cloudinary before the createEntry controller runs.
   const handleSubmit = async () => {
     setLoading(true);
     try {
       const fd = new FormData();
+      // Append each text field individually
       Object.entries(form).forEach(([k, v]) => fd.append(k, v));
+      // Append each File under the 'images' key (multer picks these up as req.files)
       files.forEach((f) => fd.append('images', f));
       await api.post('/entries', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
       toast.success('Entry created!');
@@ -38,10 +53,12 @@ export default function CreateEntry() {
 
   const inputCls = 'w-full border border-border-mid rounded-lg px-4 py-3 text-sm text-ink-dark placeholder:text-ink-muted bg-white focus:outline-none focus:border-terracotta focus:ring-2 focus:ring-terracotta/15';
 
+  // Progress bar percentage based on the current step
   const progressPct = ((step + 1) / STEPS.length) * 100;
 
   return (
     <div className="min-h-screen bg-[#FCF9F3] flex flex-col">
+      {/* Top bar with brand logo, page title, and cancel action */}
       <div className="bg-white border-b border-border-warm px-6 sm:px-10 lg:px-12 h-[72px] flex items-center justify-between shrink-0 gap-4">
         <Link to="/" className="min-w-0">
           <BrandLogo />
@@ -59,16 +76,19 @@ export default function CreateEntry() {
       </div>
 
       <div className="flex flex-1 flex-col md:flex-row min-h-0">
+        {/* Sidebar: step list showing completed / active / pending states */}
         <div className="hidden md:flex flex-col w-[300px] shrink-0 bg-[#FCF9F3] border-r border-border-warm px-8 py-10">
           <h2 className="font-display text-[22px] font-bold text-ink-dark mb-1">Your Entry</h2>
           <p className="text-ink-secondary text-[13px] leading-snug mb-10">
             Fill in the details for your new travel memory.
           </p>
           <div className="relative pl-1">
+            {/* Vertical connector line behind the step dots */}
             <div className="absolute left-[13px] top-2 bottom-2 w-px bg-border-warm" aria-hidden />
             <div className="space-y-6">
               {STEPS.map((s, i) => (
                 <div key={i} className="relative flex items-start gap-3">
+                  {/* Step dot: green = done, terracotta = active, grey = pending */}
                   <div
                     className={`relative z-[1] w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
                       i < step ? 'bg-forest text-white' : i === step ? 'bg-terracotta text-white' : 'bg-white border-2 border-border-mid text-ink-muted'
@@ -90,12 +110,14 @@ export default function CreateEntry() {
           </div>
         </div>
 
+        {/* Main content area — renders a different form section per step */}
         <div className="flex-1 bg-[#FCF9F3] px-6 sm:px-12 lg:px-20 py-10 lg:py-12 flex flex-col">
           <div className="mb-8">
             <div className="flex items-center gap-4 mb-6 flex-wrap">
               <span className="text-xs font-bold text-terracotta tracking-[0.2em] uppercase">
                 Step {step + 1} of {STEPS.length}
               </span>
+              {/* Progress bar fills proportionally as the user advances through steps */}
               <div className="h-1 flex-1 min-w-[120px] max-w-md rounded-full bg-border-mid overflow-hidden">
                 <div
                   className="h-full bg-terracotta rounded-full transition-all duration-300"
@@ -109,6 +131,7 @@ export default function CreateEntry() {
             <p className="text-ink-secondary text-sm">{STEPS[step].blurb}</p>
           </div>
 
+          {/* Step 0: title, location, date */}
           {step === 0 && (
             <div className="space-y-5 max-w-xl">
               <div>
@@ -153,6 +176,7 @@ export default function CreateEntry() {
             </div>
           )}
 
+          {/* Step 1: journal body text */}
           {step === 1 && (
             <div className="max-w-xl">
               <label className="block text-xs font-bold text-ink-secondary mb-1.5">Journal Entry</label>
@@ -166,19 +190,27 @@ export default function CreateEntry() {
             </div>
           )}
 
+          {/* Step 2: photo picker.
+              Selected files are previewed locally via createObjectURL.
+              They are not sent to the server until the user hits "Save Entry". */}
           {step === 2 && (
             <div className="max-w-xl">
-              <label className="block text-xs font-bold text-ink-secondary mb-3">Photos (up to 10)</label>
+              <label className="block text-xs font-bold text-ink-secondary mb-3">
+                Photos ({files.length}/{MAX_IMAGES})
+              </label>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {[...files].map((f, i) => (
                   <div key={i} className="aspect-square rounded-lg overflow-hidden bg-border-warm">
+                    {/* Temporary object URL for in-browser preview — does not consume upload quota */}
                     <img src={URL.createObjectURL(f)} className="w-full h-full object-cover" alt="" />
                   </div>
                 ))}
-                {files.length < 10 && (
+                {/* Hide the picker once the per-entry image cap is reached */}
+                {files.length < MAX_IMAGES && (
                   <label className="aspect-square rounded-lg border-2 border-dashed border-border-mid flex flex-col items-center justify-center cursor-pointer hover:border-terracotta hover:bg-terracotta-soft/50 transition gap-1">
                     <span className="text-3xl text-ink-muted">+</span>
                     <span className="text-xs text-ink-muted">Add photos</span>
+                    {/* Accumulate selected files into state without replacing previous picks */}
                     <input
                       type="file"
                       accept="image/*"
@@ -192,6 +224,7 @@ export default function CreateEntry() {
             </div>
           )}
 
+          {/* Navigation footer: Back / Next or Save on the final step */}
           <div className="flex justify-between mt-auto pt-12 max-w-xl">
             {step > 0 ? (
               <button
@@ -206,6 +239,7 @@ export default function CreateEntry() {
             )}
 
             {step < 2 ? (
+              // Disable Next on step 0 until the required fields are filled
               <button
                 type="button"
                 onClick={next}
@@ -216,6 +250,7 @@ export default function CreateEntry() {
                 <span aria-hidden>→</span>
               </button>
             ) : (
+              // Final step: submit triggers the API call
               <button
                 type="button"
                 onClick={handleSubmit}

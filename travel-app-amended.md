@@ -10,7 +10,7 @@
 2. [Prerequisites](#2-prerequisites)
 3. [Environment Setup](#3-environment-setup)
 4. [Create All Skills First](#4-create-all-skills-first)
-5. [Trello MCP Setup](#5-trello-mcp-setup)
+5. [Trello MCP Setup + Populate Backlog](#5-trello-mcp-setup)
 6. [Configure Hooks](#6-configure-hooks)
 7. [UI Prototype with Pencil MCP](#7-ui-prototype-with-pencil-mcp)
 8. [Scaffold the Backend](#8-scaffold-the-backend)
@@ -547,6 +547,79 @@ Create 4 lists on the Travel Journal App board: Backlog, In Progress, In Review,
 ```
 
 Claude calls the Trello MCP and creates the lists automatically.
+
+### Step 6 — Populate the Backlog with `/create-user-stories`
+
+Now that your board has lists and the skill is created (Part 4, Skill 3), run it once per core feature to generate Gherkin user stories **and** create the Trello cards automatically in one command.
+
+Type each of these in Claude Code chat, one at a time, and wait for the Trello cards to appear before running the next:
+
+```
+/create-user-stories "User authentication with JWT — register, login, logout with profile picture upload"
+```
+
+```
+/create-user-stories "Journal entry management — create, view, delete entries with title, location, date, body text, up to 3 photos"
+```
+
+```
+/create-user-stories "Photo upload — attach up to 3 images per entry via Cloudinary, view in carousel"
+```
+
+```
+/create-user-stories "Search and filter — find entries by title, location, or date with real-time filtering"
+```
+
+```
+/create-user-stories "User profile — view profile picture, personal entry history, and mood timeline"
+```
+
+After all five commands, your Trello Backlog will look like this:
+
+| Story | Label | List |
+|-------|-------|------|
+| As a user, I want to register so that I can create a private journal | Story | Backlog |
+| As a user, I want to log in so that I can access my entries | Story | Backlog |
+| As a traveller, I want to create a journal entry so that I can record my trip | Story | Backlog |
+| As a traveller, I want to attach photos so that I can visualise my memories | Story | Backlog |
+| ... and so on for all features | Story | Backlog |
+
+### How the Skill Works
+
+When you type `/create-user-stories "feature description"`:
+
+```
+/create-user-stories "User authentication..."
+       |
+       Claude parses $ARGUMENTS
+             |
+             Generates 3-5 stories in "As a / I want / so that" format
+             Writes Given/When/Then acceptance criteria per story
+                   |
+                   Calls Trello MCP tool: mcp__trello__add_card_to_list
+                         |
+                         Card created in Backlog with label "Story"
+                         Returns Trello card URL
+       |
+       Output shown in Claude Code chat:
+       ## Created Stories for: User authentication...
+       | # | Story | Trello Card |
+       | 1 | As a user... | https://trello.com/c/... |
+```
+
+### Moving Cards via MCP
+
+As you work through a story, tell Claude to move it rather than doing it manually in Trello:
+
+```
+Move the registration card to In Progress
+```
+
+```
+Move the registration cards to Done
+```
+
+Claude calls the Trello MCP and updates the card — no browser switching needed.
 
 ---
 
