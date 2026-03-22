@@ -32,6 +32,30 @@ export const createEntry = async (req, res) => {
   res.status(201).json(entry);
 };
 
+export const updateEntry = async (req, res) => {
+  const entry = await Entry.findById(req.params.id);
+
+  if (!entry) {
+    return res.status(404).json({ message: 'Entry not found' });
+  }
+
+  if (entry.author.toString() !== req.user._id.toString()) {
+    return res.status(403).json({ message: 'Not authorised to edit this entry' });
+  }
+
+  const { title, location, date, body } = req.body;
+  if (title)    entry.title    = title;
+  if (location) entry.location = location;
+  if (date)     entry.date     = date;
+  if (body)     entry.body     = body;
+
+  const newImages = (req.files ?? []).map((f) => ({ url: f.path, caption: '', altText: '' }));
+  if (newImages.length) entry.images = [...entry.images, ...newImages];
+
+  const updated = await entry.save();
+  res.json(updated);
+};
+
 export const deleteEntry = async (req, res) => {
   const entry = await Entry.findById(req.params.id);
 

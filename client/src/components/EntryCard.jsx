@@ -15,7 +15,7 @@ export default function EntryCard({ entry }) {
     <Link to={`/entry/${_id}`} className="block group">
       <article className="bg-white rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-shadow duration-300">
         {cover && (
-          <div className="overflow-hidden aspect-[21/9] sm:h-56 sm:aspect-auto">
+          <div className="overflow-hidden aspect-[16/9]">
             <img
               src={cover}
               alt={images[0].altText || title}

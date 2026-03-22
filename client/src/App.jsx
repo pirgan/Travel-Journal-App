@@ -11,15 +11,18 @@ import Register      from './pages/Register';
 import Home          from './pages/Home';
 import EntryDetail   from './pages/EntryDetail';
 import CreateEntry   from './pages/CreateEntry';
+import EditEntry     from './pages/EditEntry';
 import TripNarrative from './pages/TripNarrative';
 import SearchResults from './pages/SearchResults';
 import Profile       from './pages/Profile';
 
-const NO_NAV = ['/login', '/register', '/entry/new'];
+const NO_NAV_EXACT  = ['/login', '/register', '/entry/new'];
+const NO_NAV_PREFIX = ['/entry/', '/edit'];
 
 function ConditionalNavbar() {
   const { pathname } = useLocation();
-  if (NO_NAV.includes(pathname)) return null;
+  if (NO_NAV_EXACT.includes(pathname)) return null;
+  if (NO_NAV_PREFIX.some((p) => pathname.endsWith('/edit'))) return null;
   return <Navbar />;
 }
 
@@ -33,8 +36,9 @@ export default function App() {
           <Route path="/register" element={<Register />} />
 
           <Route path="/"          element={<ProtectedRoute><Home /></ProtectedRoute>} />
-          <Route path="/entry/new" element={<ProtectedRoute><CreateEntry /></ProtectedRoute>} />
-          <Route path="/entry/:id" element={<ProtectedRoute><EntryDetail /></ProtectedRoute>} />
+          <Route path="/entry/new"     element={<ProtectedRoute><CreateEntry /></ProtectedRoute>} />
+          <Route path="/entry/:id"     element={<ProtectedRoute><EntryDetail /></ProtectedRoute>} />
+          <Route path="/entry/:id/edit" element={<ProtectedRoute><EditEntry /></ProtectedRoute>} />
           <Route path="/narrative" element={<ProtectedRoute><TripNarrative /></ProtectedRoute>} />
           <Route path="/search"    element={<ProtectedRoute><SearchResults /></ProtectedRoute>} />
           <Route path="/profile"   element={<ProtectedRoute><Profile /></ProtectedRoute>} />

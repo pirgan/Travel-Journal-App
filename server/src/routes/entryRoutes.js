@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getEntries, createEntry, deleteEntry, searchEntries } from '../controllers/entryController.js';
+import { getEntries, createEntry, updateEntry, deleteEntry, searchEntries } from '../controllers/entryController.js';
 import { protect } from '../middleware/authMiddleware.js';
 import multer from 'multer';
 import { CloudinaryStorage } from 'multer-storage-cloudinary';
@@ -21,6 +21,7 @@ router.use(protect);
 
 router.get('/',        getEntries);
 router.post('/',       upload.array('images', 10), createEntry);
+router.put('/:id',     upload.array('images', 10), updateEntry);
 router.delete('/:id',  deleteEntry);
 router.get('/search',  searchEntries);
 
