@@ -6,23 +6,70 @@ const SENTIMENT = {
   negative: 'bg-red-50 text-red-600',
 };
 
+// Renders the image section of an entry card.
+// Layout depends on how many images are available (up to 4 shown):
+//   0 images → nothing
+//   1 image  → single full-width hero
+//   2 images → two equal columns side by side
+//   3-4 imgs → large primary on the left, 2-3 stacked thumbnails on the right
+function ImageCollage({ images, title }) {
+  const photos = (images ?? []).slice(0, 4); // cap at 4
+  const count  = photos.length;
+
+  if (count === 0) return null;
+
+  if (count === 1) {
+    return (
+      <div className="overflow-hidden aspect-[16/9]">
+        <img
+          src={photos[0].url}
+          alt={photos[0].altText || title}
+          className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
+        />
+      </div>
+    );
+  }
+
+  if (count === 2) {
+    return (
+      <div className="flex gap-0.5 aspect-[16/9]">
+        {photos.map((img, i) => (
+          <div key={i} className="flex-1 overflow-hidden">
+            <img src={img.url} alt={img.altText || title} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  // 3 or 4 images: primary large on the left, remaining stacked on the right
+  const [primary, ...rest] = photos;
+  return (
+    <div className="flex gap-0.5 aspect-[16/9]">
+      {/* Primary image takes 60% of the width */}
+      <div className="w-[60%] overflow-hidden shrink-0">
+        <img src={primary.url} alt={primary.altText || title} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500" />
+      </div>
+      {/* Secondary images stacked vertically in the remaining 40% */}
+      <div className="flex-1 flex flex-col gap-0.5">
+        {rest.map((img, i) => (
+          <div key={i} className="flex-1 overflow-hidden">
+            <img src={img.url} alt={img.altText || title} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function EntryCard({ entry }) {
   const { _id, title, location, date, images, sentiment } = entry;
-  const cover          = images?.[0]?.url;
   const sentimentScore = sentiment?.score;
 
   return (
     <Link to={`/entry/${_id}`} className="block group">
       <article className="bg-white rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-shadow duration-300">
-        {cover && (
-          <div className="overflow-hidden aspect-[16/9]">
-            <img
-              src={cover}
-              alt={images[0].altText || title}
-              className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
-            />
-          </div>
-        )}
+        <ImageCollage images={images} title={title} />
         <div className="p-5 sm:p-6">
           <h3 className="font-display text-xl font-semibold text-ink-dark mb-2 line-clamp-2 leading-snug">
             {title}

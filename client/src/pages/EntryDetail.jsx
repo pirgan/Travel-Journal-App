@@ -49,17 +49,16 @@ export default function EntryDetail() {
       <div className="flex-1 flex justify-center px-6 py-10 sm:px-12">
         <div className="w-full max-w-2xl space-y-6">
 
-          {/* Back button */}
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
+          {/* Back button — always returns to the home feed, not the previous history entry */}
+          <Link
+            to="/"
             className="inline-flex items-center gap-1.5 text-sm text-ink-muted hover:text-ink-secondary transition"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 12H5m7-7l-7 7 7 7" />
             </svg>
             Back
-          </button>
+          </Link>
 
           {/* Meta row: location + date */}
           <div className="flex flex-wrap items-center gap-3">
