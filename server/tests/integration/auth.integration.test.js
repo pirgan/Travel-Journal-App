@@ -35,6 +35,7 @@ vi.mock('multer-storage-cloudinary', () => ({
 
 beforeAll(startDB, 30_000);
 afterAll(stopDB,  30_000);
+beforeEach(clearDB);
 afterEach(clearDB);
 
 // ── POST /api/auth/register ───────────────────────────────────────────────────

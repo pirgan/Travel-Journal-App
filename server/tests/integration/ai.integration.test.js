@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeAll, afterAll, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeAll, afterAll, beforeEach, afterEach } from 'vitest';
 import request from 'supertest';
 import mongoose from 'mongoose';
 import app from '../../src/index.js';
@@ -47,6 +47,7 @@ vi.mock('../../src/config/anthropic.js', () => ({
 
 beforeAll(startDB, 30_000);
 afterAll(stopDB,  30_000);
+beforeEach(clearDB);
 afterEach(() => {
   vi.clearAllMocks();
   return clearDB();

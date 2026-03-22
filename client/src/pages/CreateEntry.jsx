@@ -1,9 +1,14 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import api from '../api/axios';
+import BrandLogo from '../components/BrandLogo';
 
-const STEPS = ['Basic Info', 'Your Story', 'Add Photos'];
+const STEPS = [
+  { label: 'Basic Info',  sub: 'Title, location & date',  title: 'Basic Information', blurb: "Let's start with the essentials of your journey." },
+  { label: 'Your Story', sub: 'Write your journal entry', title: 'Your Story',       blurb: 'Capture the moments, feelings, and details you want to remember.' },
+  { label: 'Add Photos', sub: 'Upload up to 10 images',   title: 'Add Photos',       blurb: 'Add up to ten images to bring this memory to life.' },
+];
 
 export default function CreateEntry() {
   const navigate = useNavigate();
@@ -31,124 +36,196 @@ export default function CreateEntry() {
     }
   };
 
+  const inputCls = 'w-full border border-border-mid rounded-lg px-4 py-3 text-sm text-ink-dark placeholder:text-ink-muted bg-white focus:outline-none focus:border-terracotta focus:ring-2 focus:ring-terracotta/15';
+
+  const progressPct = ((step + 1) / STEPS.length) * 100;
+
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8 flex gap-8">
-      {/* Sidebar */}
-      <div className="hidden md:flex flex-col gap-2 w-48 shrink-0">
-        {STEPS.map((label, i) => (
-          <div key={i} className={`flex items-center gap-3 p-3 rounded-xl text-sm ${i === step ? 'bg-terracotta/10 text-terracotta font-semibold' : 'text-gray-400'}`}>
-            <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${i === step ? 'bg-terracotta text-white' : i < step ? 'bg-forest text-white' : 'bg-gray-100 text-gray-400'}`}>
-              {i < step ? '✓' : i + 1}
-            </div>
-            {label}
-          </div>
-        ))}
+    <div className="min-h-screen bg-[#FCF9F3] flex flex-col">
+      <div className="bg-white border-b border-border-warm px-6 sm:px-10 lg:px-12 h-[72px] flex items-center justify-between shrink-0 gap-4">
+        <Link to="/" className="min-w-0">
+          <BrandLogo />
+        </Link>
+        <span className="text-sm font-medium text-ink-secondary truncate">New Journal Entry</span>
+        <div className="flex items-center gap-3 text-sm shrink-0">
+          <button type="button" className="text-ink-secondary hover:text-ink-dark transition hidden sm:inline">
+            Save Draft
+          </button>
+          <div className="w-px h-5 bg-border-mid hidden sm:block" />
+          <Link to="/" className="text-ink-muted hover:text-ink-secondary transition">
+            Cancel
+          </Link>
+        </div>
       </div>
 
-      {/* Form */}
-      <div className="flex-1">
-        <div className="flex gap-1 mb-6">
-          {STEPS.map((_, i) => (
-            <div key={i} className={`h-1 flex-1 rounded-full ${i <= step ? 'bg-terracotta' : 'bg-gray-200'}`} />
-          ))}
-        </div>
-
-        <h2 className="font-display text-2xl font-bold text-gray-900 mb-1">{STEPS[step]}</h2>
-
-        {step === 0 && (
-          <div className="space-y-4 mt-4">
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Entry Title</label>
-              <input
-                value={form.title}
-                onChange={(e) => setForm({ ...form, title: e.target.value })}
-                placeholder="Golden Hour in Santorini..."
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/30"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Location</label>
-              <input
-                value={form.location}
-                onChange={(e) => setForm({ ...form, location: e.target.value })}
-                placeholder="Oia, Santorini, Greece"
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/30"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Date</label>
-              <input
-                type="date"
-                value={form.date}
-                onChange={(e) => setForm({ ...form, date: e.target.value })}
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/30"
-              />
-            </div>
-          </div>
-        )}
-
-        {step === 1 && (
-          <div className="mt-4">
-            <label className="block text-xs font-medium text-gray-600 mb-1">Journal Entry</label>
-            <textarea
-              value={form.body}
-              onChange={(e) => setForm({ ...form, body: e.target.value })}
-              rows={12}
-              placeholder="Write about your experience..."
-              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/30 resize-none"
-            />
-          </div>
-        )}
-
-        {step === 2 && (
-          <div className="mt-4">
-            <label className="block text-xs font-medium text-gray-600 mb-3">Photos (up to 10)</label>
-            <div className="grid grid-cols-3 gap-3">
-              {[...files].map((f, i) => (
-                <div key={i} className="aspect-square rounded-xl overflow-hidden bg-gray-100">
-                  <img src={URL.createObjectURL(f)} className="w-full h-full object-cover" alt="" />
+      <div className="flex flex-1 flex-col md:flex-row min-h-0">
+        <div className="hidden md:flex flex-col w-[300px] shrink-0 bg-[#FCF9F3] border-r border-border-warm px-8 py-10">
+          <h2 className="font-display text-[22px] font-bold text-ink-dark mb-1">Your Entry</h2>
+          <p className="text-ink-secondary text-[13px] leading-snug mb-10">
+            Fill in the details for your new travel memory.
+          </p>
+          <div className="relative pl-1">
+            <div className="absolute left-[13px] top-2 bottom-2 w-px bg-border-warm" aria-hidden />
+            <div className="space-y-6">
+              {STEPS.map((s, i) => (
+                <div key={i} className="relative flex items-start gap-3">
+                  <div
+                    className={`relative z-[1] w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+                      i < step ? 'bg-forest text-white' : i === step ? 'bg-terracotta text-white' : 'bg-white border-2 border-border-mid text-ink-muted'
+                    }`}
+                  >
+                    {i < step ? '✓' : i + 1}
+                  </div>
+                  <div className="pt-0.5">
+                    <p className={`text-sm font-semibold leading-tight mb-0.5 ${
+                      i === step ? 'text-terracotta' : i < step ? 'text-ink-secondary' : 'text-ink-muted'
+                    }`}>
+                      {s.label}
+                    </p>
+                    <p className="text-xs text-ink-muted">{s.sub}</p>
+                  </div>
                 </div>
               ))}
-              {files.length < 10 && (
-                <label className="aspect-square rounded-xl border-2 border-dashed border-gray-200 flex items-center justify-center cursor-pointer hover:border-terracotta transition">
-                  <span className="text-3xl text-gray-300">+</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    className="hidden"
-                    onChange={(e) => setFiles((prev) => [...prev, ...Array.from(e.target.files)])}
-                  />
-                </label>
-              )}
             </div>
           </div>
-        )}
+        </div>
 
-        <div className="flex justify-between mt-8">
-          {step > 0 ? (
-            <button onClick={back} className="px-5 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50 transition">
-              ← Back
-            </button>
-          ) : <div />}
+        <div className="flex-1 bg-[#FCF9F3] px-6 sm:px-12 lg:px-20 py-10 lg:py-12 flex flex-col">
+          <div className="mb-8">
+            <div className="flex items-center gap-4 mb-6 flex-wrap">
+              <span className="text-xs font-bold text-terracotta tracking-[0.2em] uppercase">
+                Step {step + 1} of {STEPS.length}
+              </span>
+              <div className="h-1 flex-1 min-w-[120px] max-w-md rounded-full bg-border-mid overflow-hidden">
+                <div
+                  className="h-full bg-terracotta rounded-full transition-all duration-300"
+                  style={{ width: `${progressPct}%` }}
+                />
+              </div>
+            </div>
+            <h2 className="font-display text-[clamp(1.5rem,3vw,1.85rem)] font-bold text-ink-dark mb-1">
+              {STEPS[step].title}
+            </h2>
+            <p className="text-ink-secondary text-sm">{STEPS[step].blurb}</p>
+          </div>
 
-          {step < 2 ? (
-            <button
-              onClick={next}
-              disabled={step === 0 && (!form.title || !form.location || !form.date)}
-              className="bg-terracotta text-white px-6 py-2.5 rounded-xl text-sm font-medium hover:opacity-90 transition disabled:opacity-40"
-            >
-              Next: {STEPS[step + 1]} →
-            </button>
-          ) : (
-            <button
-              onClick={handleSubmit}
-              disabled={loading}
-              className="bg-terracotta text-white px-6 py-2.5 rounded-xl text-sm font-medium hover:opacity-90 transition disabled:opacity-50"
-            >
-              {loading ? 'Saving…' : 'Save Entry'}
-            </button>
+          {step === 0 && (
+            <div className="space-y-5 max-w-xl">
+              <div>
+                <label className="block text-xs font-bold text-ink-secondary mb-1.5">Entry Title</label>
+                <input
+                  value={form.title}
+                  onChange={(e) => setForm({ ...form, title: e.target.value })}
+                  placeholder="Golden Hour in Santorini..."
+                  className={`${inputCls} border-terracotta/45 font-display text-base`}
+                />
+              </div>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex-1">
+                  <label className="block text-xs font-bold text-ink-secondary mb-1.5">Location</label>
+                  <div className="relative">
+                    <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-muted pointer-events-none" fill="currentColor" viewBox="0 0 24 24" aria-hidden>
+                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+                    </svg>
+                    <input
+                      value={form.location}
+                      onChange={(e) => setForm({ ...form, location: e.target.value })}
+                      placeholder="Oia, Santorini, Greece"
+                      className={`${inputCls} pl-10`}
+                    />
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <label className="block text-xs font-bold text-ink-secondary mb-1.5">Date</label>
+                  <div className="relative">
+                    <input
+                      type="date"
+                      value={form.date}
+                      onChange={(e) => setForm({ ...form, date: e.target.value })}
+                      className={`${inputCls} pr-10`}
+                    />
+                    <svg className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-muted pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
+
+          {step === 1 && (
+            <div className="max-w-xl">
+              <label className="block text-xs font-bold text-ink-secondary mb-1.5">Journal Entry</label>
+              <textarea
+                value={form.body}
+                onChange={(e) => setForm({ ...form, body: e.target.value })}
+                rows={12}
+                placeholder="Write about your experience..."
+                className={`${inputCls} resize-none min-h-[280px]`}
+              />
+            </div>
+          )}
+
+          {step === 2 && (
+            <div className="max-w-xl">
+              <label className="block text-xs font-bold text-ink-secondary mb-3">Photos (up to 10)</label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {[...files].map((f, i) => (
+                  <div key={i} className="aspect-square rounded-lg overflow-hidden bg-border-warm">
+                    <img src={URL.createObjectURL(f)} className="w-full h-full object-cover" alt="" />
+                  </div>
+                ))}
+                {files.length < 10 && (
+                  <label className="aspect-square rounded-lg border-2 border-dashed border-border-mid flex flex-col items-center justify-center cursor-pointer hover:border-terracotta hover:bg-terracotta-soft/50 transition gap-1">
+                    <span className="text-3xl text-ink-muted">+</span>
+                    <span className="text-xs text-ink-muted">Add photos</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="hidden"
+                      onChange={(e) => setFiles((prev) => [...prev, ...Array.from(e.target.files)])}
+                    />
+                  </label>
+                )}
+              </div>
+            </div>
+          )}
+
+          <div className="flex justify-between mt-auto pt-12 max-w-xl">
+            {step > 0 ? (
+              <button
+                type="button"
+                onClick={back}
+                className="flex items-center gap-2 px-5 py-2.5 border border-border-mid rounded-lg text-sm text-ink-secondary bg-white hover:bg-cream/60 transition"
+              >
+                ← Back
+              </button>
+            ) : (
+              <div />
+            )}
+
+            {step < 2 ? (
+              <button
+                type="button"
+                onClick={next}
+                disabled={step === 0 && (!form.title || !form.location || !form.date)}
+                className="bg-terracotta text-white px-6 py-2.5 rounded-lg text-sm font-semibold hover:opacity-90 transition shadow-btn disabled:opacity-40 inline-flex items-center gap-2"
+              >
+                Next: {STEPS[step + 1].label}
+                <span aria-hidden>→</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={loading}
+                className="bg-terracotta text-white px-6 py-2.5 rounded-lg text-sm font-semibold hover:opacity-90 transition shadow-btn disabled:opacity-50"
+              >
+                {loading ? 'Saving…' : 'Save Entry'}
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>

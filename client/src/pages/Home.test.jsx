@@ -8,11 +8,6 @@ import api from '../api/axios';
 
 vi.mock('../api/axios', () => ({ default: { get: vi.fn() } }));
 
-// Stub child components so Home tests stay focused on Home's own behaviour.
-vi.mock('../components/MoodTimeline', () => ({
-  default: () => <div data-testid="mood-timeline" />,
-}));
-
 vi.mock('../components/EntryCard', () => ({
   default: ({ entry }) => <div data-testid="entry-card">{entry.title}</div>,
 }));
@@ -68,21 +63,14 @@ describe('Home', () => {
     expect(await screen.findByText(/no entries yet/i)).toBeInTheDocument();
   });
 
-  it('shows MoodTimeline once entries load', async () => {
-    api.get.mockResolvedValue({ data: [makeEntry(1), makeEntry(2)] });
-    renderHome();
-
-    expect(await screen.findByTestId('mood-timeline')).toBeInTheDocument();
-  });
-
-  it('"+ New Entry" button links to /entry/new', async () => {
+  it('New Entry button links to /entry/new', async () => {
     api.get.mockResolvedValue({ data: [makeEntry(1)] });
     renderHome();
 
     // Wait for loading to finish so the full page is rendered
     await screen.findAllByTestId('entry-card');
 
-    const newLink = screen.getByRole('link', { name: /\+ new entry/i });
+    const newLink = screen.getByRole('link', { name: /new entry/i });
     expect(newLink).toHaveAttribute('href', '/entry/new');
   });
 

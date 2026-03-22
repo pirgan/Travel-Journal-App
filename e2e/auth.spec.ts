@@ -51,8 +51,9 @@ test.describe('Logout', () => {
     const user = await registerViaApi(request);
     await loginInBrowser(page, user);
 
-    // The Navbar should show a Logout button when authenticated
-    await page.click('button:has-text("Logout")');
+    // Navigate to Profile and sign out from there
+    await page.goto('/profile');
+    await page.click('button:has-text("Sign out")');
 
     await page.waitForURL('/login');
     await expect(page).toHaveURL('/login');

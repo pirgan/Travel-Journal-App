@@ -12,11 +12,11 @@ test.describe('Create entry', () => {
     const title = `Lisbon at Dawn ${uid()}`;
 
     await loginInBrowser(page, user);
-    await page.click('a:has-text("+ New Entry")');
+    await page.click('[data-testid="new-entry-btn"]');
     await page.waitForURL('/entry/new');
 
     // ── Step 1: Basic Info ──────────────────────────────────────────────────
-    await expect(page.locator('h2')).toHaveText('Basic Info');
+    await expect(page.locator('h2').filter({ hasText: 'Basic' }).first()).toBeVisible();
 
     await page.fill('[placeholder="Golden Hour in Santorini..."]', title);
     await page.fill('[placeholder="Oia, Santorini, Greece"]',      'Lisbon, Portugal');
@@ -28,13 +28,13 @@ test.describe('Create entry', () => {
     await nextBtn.click();
 
     // ── Step 2: Your Story ──────────────────────────────────────────────────
-    await expect(page.locator('h2')).toHaveText('Your Story');
+    await expect(page.locator('h2').filter({ hasText: 'Your Story' }).first()).toBeVisible();
 
     await page.fill('textarea', 'The city woke slowly, golden light over terracotta rooftops.');
     await page.click('button:has-text("Next:")');
 
     // ── Step 3: Add Photos (skip upload, save directly) ────────────────────
-    await expect(page.locator('h2')).toHaveText('Add Photos');
+    await expect(page.locator('h2').filter({ hasText: 'Add Photos' }).first()).toBeVisible();
 
     await page.click('button:has-text("Save Entry")');
 

@@ -11,23 +11,22 @@ export default function Profile() {
   };
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-10">
-      <h1 className="font-display text-3xl font-bold text-forest mb-8">Profile</h1>
+    <div className="max-w-lg mx-auto px-4 py-12">
+      <h1 className="font-display text-3xl font-bold text-ink-dark mb-8">Profile</h1>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-sand p-6 flex flex-col items-center gap-4">
-        <div className="w-20 h-20 rounded-full bg-forest text-white flex items-center justify-center text-3xl font-semibold">
+      <div className="bg-white rounded-2xl shadow-card border border-border-warm p-8 flex flex-col items-center gap-4">
+        <div className="w-20 h-20 rounded-full bg-terracotta text-white flex items-center justify-center text-3xl font-semibold">
           {user?.name?.[0]?.toUpperCase()}
         </div>
-
         <div className="text-center">
-          <p className="text-xl font-semibold text-gray-800">{user?.name}</p>
-          <p className="text-sm text-gray-500 mt-1">{user?.email}</p>
+          <p className="text-xl font-semibold text-ink-dark">{user?.name}</p>
+          <p className="text-sm text-ink-secondary mt-1">{user?.email}</p>
         </div>
       </div>
 
       <button
         onClick={handleLogout}
-        className="mt-8 w-full py-3 rounded-full border border-terracotta text-terracotta text-sm font-medium hover:bg-terracotta hover:text-white transition"
+        className="mt-6 w-full py-3 rounded-full border border-terracotta/40 text-terracotta text-sm font-semibold hover:bg-terracotta hover:text-white transition"
       >
         Sign out
       </button>

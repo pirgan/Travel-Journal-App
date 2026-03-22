@@ -56,15 +56,14 @@ describe('CreateEntry', () => {
     expect(screen.getByText('Add Photos')).toBeInTheDocument();
   });
 
-  it('displays "Basic Info" as the active step heading on initial render', () => {
+  it('displays "Basic Information" as the active step heading on initial render', () => {
     renderForm();
-    expect(screen.getByRole('heading', { name: /basic info/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /basic information/i })).toBeInTheDocument();
   });
 
-  it('renders three progress-bar segments', () => {
+  it('renders a horizontal progress bar for the wizard', () => {
     const { container } = renderForm();
-    const segments = container.querySelectorAll('.h-1.flex-1.rounded-full');
-    expect(segments).toHaveLength(3);
+    expect(container.querySelector('.h-1.rounded-full.overflow-hidden')).toBeInTheDocument();
   });
 
   // ── step 0 validation / Next button ───────────────────────────────────────
@@ -112,7 +111,7 @@ describe('CreateEntry', () => {
     await fillStep0(container);
     await userEvent.click(screen.getByRole('button', { name: /next/i }));
     await userEvent.click(screen.getByRole('button', { name: /back/i }));
-    expect(screen.getByRole('heading', { name: /basic info/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /basic information/i })).toBeInTheDocument();
   });
 
   // ── photo upload (step 2) ─────────────────────────────────────────────────

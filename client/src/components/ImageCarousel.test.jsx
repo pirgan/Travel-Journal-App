@@ -67,7 +67,7 @@ describe('ImageCarousel', () => {
   it('does not render a caption element when current slide has no caption', async () => {
     render(<ImageCarousel images={THREE} />);
     // THREE[1] has an empty caption — navigate to it
-    await userEvent.click(screen.getByRole('button', { name: /›/ }));
+    await userEvent.click(screen.getByRole('button', { name: /next photo/i }));
     expect(screen.queryByText(/caption for photo 1/i)).not.toBeInTheDocument();
   });
 
@@ -77,8 +77,8 @@ describe('ImageCarousel', () => {
     render(<ImageCarousel images={THREE} />);
     // All buttons: prev, next, plus THREE dots
     const allButtons = screen.getAllByRole('button');
-    const navButtons = allButtons.filter((b) => ['‹', '›'].includes(b.textContent.trim()));
-    const dotButtons = allButtons.filter((b) => !['‹', '›'].includes(b.textContent.trim()));
+    const navButtons = allButtons.filter((b) => /previous photo|next photo/i.test(b.getAttribute('aria-label') ?? ''));
+    const dotButtons = allButtons.filter((b) => !/previous photo|next photo/i.test(b.getAttribute('aria-label') ?? ''));
     expect(navButtons).toHaveLength(2);
     expect(dotButtons).toHaveLength(THREE.length);
   });
@@ -86,7 +86,7 @@ describe('ImageCarousel', () => {
   it('renders 5 dot buttons for a 5-image carousel', () => {
     render(<ImageCarousel images={FIVE} />);
     const allButtons = screen.getAllByRole('button');
-    const dotButtons = allButtons.filter((b) => !['‹', '›'].includes(b.textContent.trim()));
+    const dotButtons = allButtons.filter((b) => !/previous photo|next photo/i.test(b.getAttribute('aria-label') ?? ''));
     expect(dotButtons).toHaveLength(5);
   });
 
@@ -94,13 +94,13 @@ describe('ImageCarousel', () => {
 
   it('› next button advances to the next slide', async () => {
     render(<ImageCarousel images={THREE} />);
-    await userEvent.click(screen.getByRole('button', { name: /›/ }));
+    await userEvent.click(screen.getByRole('button', { name: /next photo/i }));
     expect(screen.getByRole('img')).toHaveAttribute('alt', THREE[1].altText);
   });
 
   it('clicking › multiple times cycles through all slides', async () => {
     render(<ImageCarousel images={THREE} />);
-    const next = screen.getByRole('button', { name: /›/ });
+    const next = screen.getByRole('button', { name: /next photo/i });
 
     await userEvent.click(next); // slide 1
     expect(screen.getByRole('img')).toHaveAttribute('alt', THREE[1].altText);
@@ -111,7 +111,7 @@ describe('ImageCarousel', () => {
 
   it('› wraps around from the last slide back to the first', async () => {
     render(<ImageCarousel images={THREE} />);
-    const next = screen.getByRole('button', { name: /›/ });
+    const next = screen.getByRole('button', { name: /next photo/i });
 
     await userEvent.click(next); // → 1
     await userEvent.click(next); // → 2
@@ -123,14 +123,14 @@ describe('ImageCarousel', () => {
 
   it('‹ prev button from slide 0 wraps to the last slide', async () => {
     render(<ImageCarousel images={THREE} />);
-    await userEvent.click(screen.getByRole('button', { name: /‹/ }));
+    await userEvent.click(screen.getByRole('button', { name: /previous photo/i }));
     expect(screen.getByRole('img')).toHaveAttribute('alt', THREE[THREE.length - 1].altText);
   });
 
   it('‹ prev button moves back one slide from a non-zero position', async () => {
     render(<ImageCarousel images={THREE} />);
-    const next = screen.getByRole('button', { name: /›/ });
-    const prev = screen.getByRole('button', { name: /‹/ });
+    const next = screen.getByRole('button', { name: /next photo/i });
+    const prev = screen.getByRole('button', { name: /previous photo/i });
 
     await userEvent.click(next); // → slide 1
     await userEvent.click(prev); // → slide 0
@@ -142,7 +142,7 @@ describe('ImageCarousel', () => {
   it('clicking a dot button navigates directly to that slide', async () => {
     render(<ImageCarousel images={THREE} />);
     const allButtons = screen.getAllByRole('button');
-    const dotButtons = allButtons.filter((b) => !['‹', '›'].includes(b.textContent.trim()));
+    const dotButtons = allButtons.filter((b) => !/previous photo|next photo/i.test(b.getAttribute('aria-label') ?? ''));
 
     // Click the 3rd dot (index 2)
     await userEvent.click(dotButtons[2]);

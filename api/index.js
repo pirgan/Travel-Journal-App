@@ -2,25 +2,15 @@
  * Vercel serverless entry point.
  *
  * Imports the Express app from server/src/app.js (which carries no
- * connectDB / listen calls). We manage the Mongoose connection here,
- * caching it across warm lambda invocations to avoid reconnecting on
- * every request.
- *
- * Node.js resolves mongoose, express, etc. from server/node_modules/
- * because app.js lives under server/src/ — no dep duplication needed.
+ * connectDB / listen calls). The Mongoose connection is managed via
+ * connectOnce (server/src/config/connectOnce.js) so that mongoose is
+ * resolved from server/node_modules — the only place it is installed.
+ * The connection is cached across warm lambda invocations.
  */
-import mongoose from 'mongoose';
-import app      from '../server/src/app.js';
-
-let isConnected = false;
-
-async function connectDB() {
-  if (isConnected) return;
-  await mongoose.connect(process.env.MONGODB_URI);
-  isConnected = true;
-}
+import app         from '../server/src/app.js';
+import { connectOnce } from '../server/src/config/connectOnce.js';
 
 export default async function handler(req, res) {
-  await connectDB();
+  await connectOnce();
   return app(req, res);
 }
